@@ -5,7 +5,7 @@
   <title>One Page Report</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,21 +18,21 @@
   <div class="card">
     <label><strong>Pilihan Laporan</strong></label>
     <select id="pilihanLaporan">
-      <option>Program</option>
-      <option>Aktiviti</option>
-      <option>PLC</option>
+      <option value="Program">Program</option>
+      <option value="Aktiviti">Aktiviti</option>
+      <option value="PLC">PLC</option>
     </select>
 
     <label><strong>Nama Program / Aktiviti / PLC</strong></label>
-    <input type="text" id="namaLaporan" placeholder="Nama Program / Aktiviti / PLC">
+    <input type="text" id="namaLaporan">
   </div>
 
   <!-- TAHAP -->
   <div class="card">
     <label><strong>Pilihan Tahap</strong></label>
     <select id="pilihanTahap">
-      <option>Peringkat</option>
-      <option>Perjumpaan</option>
+      <option value="Peringkat">Peringkat</option>
+      <option value="Perjumpaan">Perjumpaan</option>
     </select>
 
     <label><strong>Tahap</strong></label>
@@ -55,9 +55,9 @@
   <div class="card">
     <label><strong>Jenis Kehadiran</strong></label>
     <select id="jenisKehadiran">
-      <option>Peserta</option>
-      <option>Kumpulan Sasaran</option>
-      <option>Kehadiran</option>
+      <option value="Peserta">Peserta</option>
+      <option value="Kumpulan Sasaran">Kumpulan Sasaran</option>
+      <option value="Kehadiran">Kehadiran</option>
     </select>
 
     <label><strong>Jumlah Kehadiran</strong></label>
@@ -68,9 +68,9 @@
   <div class="card">
     <label><strong>Pilihan Guru</strong></label>
     <select id="pilihanGuru">
-      <option>Guru Penasihat</option>
-      <option>Guru Pengiring</option>
-      <option>Guru Penyelaras</option>
+      <option value="Guru Penasihat">Guru Penasihat</option>
+      <option value="Guru Pengiring">Guru Pengiring</option>
+      <option value="Guru Penyelaras">Guru Penyelaras</option>
     </select>
 
     <label><strong>Nama Guru</strong></label>
@@ -98,16 +98,16 @@
     <textarea id="penambahbaikan"></textarea>
   </div>
 
-  <!-- FOOTER -->
+  <!-- DISEDIAKAN OLEH -->
   <div class="card">
     <label><strong>Disediakan Oleh</strong></label>
     <input type="text" id="disediakanOleh">
   </div>
 
-  <!-- GAMBAR -->
+  <!-- LAMPIRAN -->
   <div class="card">
     <label><strong>Lampiran Gambar (Max 4)</strong></label>
-    <input type="file" id="imageInput" accept="image/*" multiple>
+    <input type="file" id="imageInput" accept="image/png,image/jpeg" multiple>
   </div>
 </div>
 

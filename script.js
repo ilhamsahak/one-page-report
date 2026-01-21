@@ -1,47 +1,80 @@
 const { PDFDocument, StandardFonts, rgb } = PDFLib;
 
 const btn = document.getElementById('generateBtn');
-const imageInput = document.getElementById('imageInput');
+const imageInput = document.getElementById('imageInput') || { files: [] };
 
-const v = id => document.getElementById(id)?.value || '-';
+const v = id => {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+};
 
-/* WORD WRAP */
-function wrap(page, text, x, y, w, size, font) {
-  const words = text.split(' ');
-  let line = '';
-  let offset = 0;
-
-  for (let word of words) {
-    const test = line + word + ' ';
-    if (font.widthOfTextAtSize(test, size) > w) {
-      page.drawText(line, { x, y: y - offset, size, font });
-      line = word + ' ';
-      offset += size + 3;
-    } else {
-      line = test;
-    }
-  }
-
-  page.drawText(line, { x, y: y - offset, size, font });
-  return offset + size;
+/* =========================
+   TEXT UTIL
+========================= */
+function cleanTextKeepLines(text) {
+  if (!text) return '';
+  return text.replace(/\r/g, '').trim();
 }
 
-/* DRAW BOX */
+function splitLines(text) {
+  return cleanTextKeepLines(text)
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean);
+}
+
+/* =========================
+   MULTILINE DRAW
+========================= */
+function drawMultiline(page, lines, x, y, w, size, font) {
+  let cursorY = y;
+  const gap = size + 4;
+
+  for (let line of lines) {
+    let current = '';
+    for (let word of line.split(' ')) {
+      const test = current + word + ' ';
+      if (font.widthOfTextAtSize(test, size) > w) {
+        page.drawText(current, { x, y: cursorY, size, font });
+        cursorY -= gap;
+        current = word + ' ';
+      } else {
+        current = test;
+      }
+    }
+    if (current.trim()) {
+      page.drawText(current, { x, y: cursorY, size, font });
+      cursorY -= gap;
+    }
+  }
+  return y - cursorY;
+}
+
+function measureMultiline(lines, w, size, font) {
+  let h = 0;
+  const gap = size + 4;
+  for (let line of lines) {
+    let cur = '';
+    for (let word of line.split(' ')) {
+      const test = cur + word + ' ';
+      if (font.widthOfTextAtSize(test, size) > w) {
+        h += gap;
+        cur = word + ' ';
+      } else cur = test;
+    }
+    h += gap;
+  }
+  return h;
+}
+
+/* =========================
+   NORMAL BOX
+========================= */
 function box(page, label, value, x, y, w, fonts) {
   const pad = 6;
-  const minHeight = 32;
-
-  const textHeight = wrap(
-    page,
-    value,
-    x + pad,
-    y - 20,
-    w - pad * 2,
-    8,
-    fonts.reg
-  );
-
-  const h = Math.max(minHeight, textHeight + 26);
+  const lines = splitLines(value);
+  const textH = measureMultiline(lines, w - pad * 2, 8, fonts.reg);
+  const h = Math.max(32, textH + 28);
 
   page.drawRectangle({
     x,
@@ -59,16 +92,85 @@ function box(page, label, value, x, y, w, fonts) {
     font: fonts.bold
   });
 
+  drawMultiline(
+    page,
+    lines,
+    x + pad,
+    y - 24,
+    w - pad * 2,
+    8,
+    fonts.reg
+  );
+
   return h;
 }
 
-/* GENERATE PDF */
+/* =========================
+   RUMUSAN BOX
+========================= */
+function boxRumusan(page, x, y, w, fonts) {
+  const pad = 6;
+
+  const sections = [
+    { label: 'Laporan', value: splitLines(v('laporan')) },
+    { label: 'Kekuatan', value: splitLines(v('kekuatan')) },
+    { label: 'Kelemahan', value: splitLines(v('kelemahan')) },
+    { label: 'Penambahbaikan', value: splitLines(v('penambahbaikan')) }
+  ];
+
+  let totalH = 24;
+  sections.forEach(s => {
+    totalH += 12 + measureMultiline(s.value, w - pad * 2, 8, fonts.reg) + 8;
+  });
+
+  page.drawRectangle({
+    x,
+    y: y - totalH,
+    width: w,
+    height: totalH,
+    borderWidth: 1,
+    borderColor: rgb(0, 0, 0)
+  });
+
+  page.drawText('RUMUSAN AKTIVITI', {
+    x: x + pad,
+    y: y - 12,
+    size: 8,
+    font: fonts.bold
+  });
+
+  let cy = y - 26;
+  sections.forEach(s => {
+    page.drawText(s.label.toUpperCase() + ':', {
+      x: x + pad,
+      y: cy,
+      size: 8,
+      font: fonts.bold
+    });
+    cy -= 12;
+    cy -= drawMultiline(
+      page,
+      s.value,
+      x + pad,
+      cy,
+      w - pad * 2,
+      8,
+      fonts.reg
+    ) + 8;
+  });
+
+  return totalH;
+}
+
+/* =========================
+   GENERATE PDF
+========================= */
 btn.onclick = async () => {
   try {
-    const pdfDoc = await PDFDocument.load(
-      await fetch('template.pdf').then(r => r.arrayBuffer())
-    );
+    const res = await fetch('template.pdf');
+    if (!res.ok) throw new Error('Template PDF gagal dimuatkan');
 
+    const pdfDoc = await PDFDocument.load(await res.arrayBuffer());
     const page = pdfDoc.getPages()[0];
 
     const fonts = {
@@ -76,84 +178,115 @@ btn.onclick = async () => {
       bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold)
     };
 
-    /* 🔥 FINAL ALIGNMENT FIX */
-    const x = 58;        // ⬅️ SELARI TEPAT DENGAN "ONE PAGE REPORT"
-    let y = 695;
+    /* ALIGN WITH MAROON LINE */
+    const x = 40;          // selari dengan tajuk
     const w = 270;
     const gap = 7;
+    let y = 695;
 
-    /* LEFT COLUMN */
-    y -= box(page, 'Pilihan Laporan', v('pilihanLaporan'), x, y, w, fonts) + gap;
-    y -= box(page, 'Nama Program / Aktiviti / PLC', v('namaLaporan'), x, y, w, fonts) + gap;
-    y -= box(page, 'Tahap', `${v('pilihanTahap')} - ${v('tahapText')}`, x, y, w, fonts) + gap;
-    y -= box(page, 'Tarikh & Masa', v('tarikhMasa'), x, y, w, fonts) + gap;
-    y -= box(page, 'Tempat / Lokasi', v('tempatLokasi'), x, y, w, fonts) + gap;
-    y -= box(page, v('jenisKehadiran'), v('jumlahKehadiran'), x, y, w, fonts) + gap;
-    y -= box(page, 'Pilihan Guru', v('pilihanGuru'), x, y, w, fonts) + gap;
-    y -= box(page, 'Nama Guru', v('namaGuru'), x, y, w, fonts) + gap;
+    y -= box(page, `Nama ${v('pilihanLaporan')}`, v('namaLaporan'), x, y, w, fonts) + gap;
+    y -= box(page, v('pilihanTahap'), v('tahapText'), x, y, w, fonts) + gap;
+   // ===== TARIKH & MASA + TEMPAT / LOKASI (SEBARIS) =====
+const halfGap = 6;
+const halfW = (w - halfGap) / 2;
 
-    const rumusan =
-      `Laporan: ${v('laporan')} ` +
-      `Kekuatan: ${v('kekuatan')} ` +
-      `Kelemahan: ${v('kelemahan')} ` +
-      `Penambahbaikan: ${v('penambahbaikan')}`;
+const h1 = box(
+  page,
+  'Tarikh & Masa',
+  v('tarikhMasa'),
+  x,
+  y,
+  halfW,
+  fonts
+);
 
-    y -= box(page, 'Rumusan Aktiviti', rumusan, x, y, w, fonts) + gap;
+const h2 = box(
+  page,
+  'Tempat / Lokasi',
+  v('tempatLokasi'),
+  x + halfW + halfGap,
+  y,
+  halfW,
+  fonts
+);
 
-    /* FOOTER */
+// turun sekali ikut box paling tinggi
+y -= Math.max(h1, h2) + gap;
+
+    y -= box(page, `Jumlah ${v('jenisKehadiran')}`, v('jumlahKehadiran'), x, y, w, fonts) + gap;
+    y -= box(page, v('pilihanGuru'), v('namaGuru'), x, y, w, fonts) + gap;
+    y -= boxRumusan(page, x, y, w, fonts);
+
+    /* =========================
+       FOOTER (SAFE A4 + DOTTED LINE)
+    ========================= */
+    const footerTextY = 78;
+    const footerLineY = 60;
+
     page.drawText('DISEDIAKAN OLEH:', {
       x,
-      y: 134,
+      y: footerTextY,
       size: 8,
       font: fonts.bold
     });
-    page.drawText(v('disediakanOleh'), {
+
+    page.drawText(cleanTextKeepLines(v('disediakanOleh')), {
       x,
-      y: 120,
+      y: footerTextY - 14,
       size: 8,
       font: fonts.reg
     });
 
-    /* RIGHT COLUMN IMAGES (EQUAL SPACING) */
-    const top = 695;
-    const bottom = 120;
-    const slots = 4;
-    const slotH = (top - bottom) / slots;
-    const imgX = 360;
-    const imgW = 180;
-    const padding = 6;
+    // DOTTED LINE (standard report style)
+   const AUTHOR_LINE_W = 170; // panjang sesuai untuk nama penulis
 
-    const files = [...imageInput.files].slice(0, 4);
+page.drawLine({
+  start: { x, y: footerLineY },
+  end:   { x: x + AUTHOR_LINE_W, y: footerLineY },
+  thickness: 1,
+  color: rgb(0, 0, 0),
+  dashArray: [3, 3]
+});
 
-    for (let i = 0; i < slots; i++) {
-      if (!files[i]) continue;
 
-      const bytes = await files[i].arrayBuffer();
-      const img = files[i].type.includes('png')
-        ? await pdfDoc.embedPng(bytes)
-        : await pdfDoc.embedJpg(bytes);
+    /* =========================
+       IMAGES – RIGHT COLUMN
+    ========================= */
+    let imgY = 695;
+    const IMG_X = 350;
+    const IMG_W = 210;
+    const IMG_H = 120;
+    const IMG_GAP = 10;
 
-      const maxH = slotH - padding * 2;
-      const scale = Math.min(
-        imgW / img.width,
-        maxH / img.height
-      );
+    for (let file of [...imageInput.files].slice(0, 4)) {
+      const img = file.type.includes('png')
+        ? await pdfDoc.embedPng(await file.arrayBuffer())
+        : await pdfDoc.embedJpg(await file.arrayBuffer());
 
-      const wImg = img.width * scale;
-      const hImg = img.height * scale;
+      const scale = Math.min(IMG_W / img.width, IMG_H / img.height);
+      const dw = img.width * scale;
+      const dh = img.height * scale;
 
       page.drawImage(img, {
-        x: imgX + (imgW - wImg) / 2,
-        y: top - slotH * i - padding - hImg,
-        width: wImg,
-        height: hImg
+        x: IMG_X + (IMG_W - dw) / 2,
+        y: imgY - dh,
+        width: dw,
+        height: dh
       });
+
+      imgY -= dh + IMG_GAP;
     }
+
+    const name = cleanTextKeepLines(v('namaLaporan'))
+      .toUpperCase()
+      .replace(/\s+/g, '_') || 'LAPORAN';
+
+    const year = (v('tarikhMasa').match(/20\d{2}/) || ['2026'])[0];
 
     const blob = new Blob([await pdfDoc.save()], { type: 'application/pdf' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'OPR_One_Page_Report.pdf';
+    a.download = `OPR_${name}_${year}.pdf`;
     a.click();
 
   } catch (e) {
