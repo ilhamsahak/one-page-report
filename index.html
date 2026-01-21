@@ -1,118 +1,134 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <title>One Page Report</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>OPR SMK Panglima Bukit Gantang 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-  <h1>One Page Report</h1>
-  <p class="subtitle">Borang laporan satu muka surat</p>
+<div class="page">
+
+  <!-- HEADER WITH LOGO -->
+  <header class="header">
+    <div class="header-left">
+      <img
+        src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiNcU9iHuz9CVnYDbZRaTn2bH4VChkbRJYYMfjsiXaGGtB9s7dEwvZSqsupkoRlEmQS__XbXRL_fg_4VmVOYkoiCNz6m6Fb5SSzcbN23MSo1AYJL9LImDQSF8mL7RXFXVi-cBY4h2jnPIg/s1600/Logo+Sekolah+copy.png"
+        alt="Logo Sekolah"
+        class="school-logo"
+      />
+      <div>
+        <h1>OPR Sekolah Menengah Kebangsaan Panglima Bukit Gantang 2026</h1>
+        <p>One Page Report (OPR)</p>
+      </div>
+    </div>
+  </header>
 
   <!-- PILIHAN LAPORAN -->
   <div class="card">
-    <label><strong>Pilihan Laporan</strong></label>
+    <label>Pilihan Laporan</label>
     <select id="pilihanLaporan">
-      <option value="Program">Program</option>
-      <option value="Aktiviti">Aktiviti</option>
-      <option value="PLC">PLC</option>
+      <option>Program</option>
+      <option>Aktiviti</option>
+      <option>PLC</option>
     </select>
 
-    <label><strong>Nama Program / Aktiviti / PLC</strong></label>
-    <input type="text" id="namaLaporan">
+    <label class="mt">Nama Program / Aktiviti / PLC</label>
+    <input type="text" id="namaLaporan" placeholder="Nama Program / Aktiviti / PLC">
   </div>
 
-  <!-- TAHAP -->
+  <!-- PILIHAN TAHAP -->
   <div class="card">
-    <label><strong>Pilihan Tahap</strong></label>
+    <label>Pilihan Tahap</label>
     <select id="pilihanTahap">
-      <option value="Peringkat">Peringkat</option>
-      <option value="Perjumpaan">Perjumpaan</option>
+      <option>Peringkat</option>
+      <option>Perjumpaan</option>
     </select>
 
-    <label><strong>Tahap</strong></label>
+    <label class="mt">Tahap</label>
     <input type="text" id="tahapText">
   </div>
 
-  <!-- TARIKH & TEMPAT -->
+  <!-- TARIKH & LOKASI -->
   <div class="card grid-2">
     <div>
-      <label><strong>Tarikh & Masa</strong></label>
+      <label>Tarikh & Masa</label>
       <input type="text" id="tarikhMasa">
     </div>
     <div>
-      <label><strong>Tempat / Lokasi</strong></label>
+      <label>Tempat / Lokasi</label>
       <input type="text" id="tempatLokasi">
     </div>
   </div>
 
   <!-- KEHADIRAN -->
   <div class="card">
-    <label><strong>Jenis Kehadiran</strong></label>
+    <label>Jenis Kehadiran</label>
     <select id="jenisKehadiran">
-      <option value="Peserta">Peserta</option>
-      <option value="Kumpulan Sasaran">Kumpulan Sasaran</option>
-      <option value="Kehadiran">Kehadiran</option>
+      <option>Peserta</option>
+      <option>Kumpulan Sasaran</option>
+      <option>Kehadiran</option>
     </select>
 
-    <label><strong>Jumlah Kehadiran</strong></label>
+    <label class="mt">Jumlah Kehadiran</label>
     <input type="text" id="jumlahKehadiran">
   </div>
 
   <!-- GURU -->
   <div class="card">
-    <label><strong>Pilihan Guru</strong></label>
+    <label>Pilihan Guru</label>
     <select id="pilihanGuru">
-      <option value="Guru Penasihat">Guru Penasihat</option>
-      <option value="Guru Pengiring">Guru Pengiring</option>
-      <option value="Guru Penyelaras">Guru Penyelaras</option>
+      <option>Guru Penasihat</option>
+      <option>Guru Pengiring</option>
+      <option>Guru Penyelaras</option>
     </select>
 
-    <label><strong>Nama Guru</strong></label>
-    <textarea id="namaGuru"></textarea>
+    <label class="mt">Nama Guru</label>
+    <textarea id="namaGuru" rows="3"></textarea>
   </div>
 
-  <!-- RUMUSAN -->
+  <!-- LAPORAN -->
   <div class="card">
-    <label><strong>Laporan</strong></label>
-    <textarea id="laporan"></textarea>
-  </div>
-
-  <div class="card">
-    <label><strong>Kekuatan</strong></label>
-    <textarea id="kekuatan"></textarea>
+    <label>Laporan</label>
+    <textarea id="laporan" rows="4"></textarea>
   </div>
 
   <div class="card">
-    <label><strong>Kelemahan</strong></label>
-    <textarea id="kelemahan"></textarea>
+    <label>Kekuatan</label>
+    <textarea id="kekuatan" rows="3"></textarea>
   </div>
 
   <div class="card">
-    <label><strong>Penambahbaikan</strong></label>
-    <textarea id="penambahbaikan"></textarea>
+    <label>Kelemahan</label>
+    <textarea id="kelemahan" rows="3"></textarea>
   </div>
 
-  <!-- DISEDIAKAN OLEH -->
   <div class="card">
-    <label><strong>Disediakan Oleh</strong></label>
+    <label>Penambahbaikan</label>
+    <textarea id="penambahbaikan" rows="3"></textarea>
+  </div>
+
+  <!-- AUTHOR -->
+  <div class="card">
+    <label>Disediakan Oleh</label>
     <input type="text" id="disediakanOleh">
   </div>
 
-  <!-- LAMPIRAN -->
+  <!-- IMAGE UPLOAD -->
   <div class="card">
-    <label><strong>Lampiran Gambar (Max 4)</strong></label>
-    <input type="file" id="imageInput" accept="image/png,image/jpeg" multiple>
+    <label>Lampiran Gambar (Max 4)</label>
+    <input type="file" id="imageInput" accept="image/*" multiple>
+    <div id="imagePreview" class="preview-grid"></div>
   </div>
-</div>
 
-<div class="sticky-bar">
-  <button id="generateBtn">Generate PDF</button>
+  <!-- ACTION -->
+  <div class="actions">
+    <button id="generateBtn">Jana PDF</button>
+  </div>
+
 </div>
 
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
